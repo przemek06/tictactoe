@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
+import BACKEND_HOST from './host';
 
 Modal.setAppElement('#root'); // Set the root element for accessibility reasons
 
@@ -19,7 +20,7 @@ function UserForm({ setPlayerName }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8080/player', { name });
+      const response = await axios.post(`${BACKEND_HOST}/player`, { name });
       if (response.status === 200) {
         onLogin(setPlayerName, name, navigate);
       }

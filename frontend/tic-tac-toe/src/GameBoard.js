@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import BACKEND_HOST from './host';
 
 function GameBoard({ matchData, playerName }) {
   const [board, setBoard] = useState(matchData.fields);
   const [result, setResult] = useState(null);
   const [player, setPlayer] = useState(null);
   const playerRef = useRef(player);  
-  const socket = new SockJS('http://localhost:8080/stomp');
+  const socket = new SockJS(`${BACKEND_HOST}/stomp`);
   const stompClient = Stomp.over(socket);
 
   // Subscribe to moves
@@ -49,7 +50,7 @@ function GameBoard({ matchData, playerName }) {
       field: { x, y }
     };
     try {
-      await axios.post(`http://localhost:8080/match/${matchData.uuid}`, move);
+      await axios.post(`${BACKEND_HOST}/match/${matchData.uuid}`, move);
     } catch (error) {
       console.error('Error sending move:', error);
     }
