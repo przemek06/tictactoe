@@ -125,7 +125,7 @@ resource "aws_security_group" "security_group_main" {
 
 resource "aws_instance" "backend" {
     instance_type = "t2.micro"
-    ami = "ami-04e5276ebb8451442"
+    ami = "ami-04b70fa74e45c3917"
     security_groups = [aws_security_group.security_group_main.id]
     subnet_id     = aws_subnet.subnet.id
     user_data = file("${path.module}/backend.sh")
@@ -137,7 +137,7 @@ resource "aws_instance" "backend" {
 
 resource "aws_instance" "frontend" {
     instance_type = "t2.micro"
-    ami = "ami-04e5276ebb8451442"
+    ami = "ami-04b70fa74e45c3917"
     security_groups = [aws_security_group.security_group_main.id]
     subnet_id     = aws_subnet.subnet.id
     user_data = file("${path.module}/frontend.sh")
