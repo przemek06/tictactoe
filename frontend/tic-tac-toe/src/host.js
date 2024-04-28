@@ -1,2 +1,2 @@
-const BACKEND_HOST = "http://44.203.106.72:8080"
+const BACKEND_HOST = "http://44.223.8.138:8080"
 export default BACKEND_HOST
