@@ -1,5 +1,5 @@
 provider "aws" {
-    region = "eu-central-1"
+    region = "us-east-1"
 }
 
 resource "aws_vpc" "main" {
@@ -17,7 +17,7 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_subnet" "subnet" {
-    availability_zone = "eu-central-1"
+    availability_zone = "us-east-1a"
     vpc_id     = aws_vpc.main.id
     cidr_block = "10.0.10.0/24"
     map_public_ip_on_launch = true
@@ -29,43 +29,64 @@ resource "aws_subnet" "subnet" {
 resource "aws_security_group" "security_group" {
     name        = "security_group"
     vpc_id      = aws_vpc.main.id
+    description = "security_group"
     ingress = [
         {
+            description      = "http"
             from_port        = 80
             to_port          = 80
             protocol         = "tcp"
             cidr_blocks      = ["0.0.0.0/0", aws_vpc.main.cidr_block]
             self              = false
+            ipv6_cidr_blocks = []
+            prefix_list_ids  = []
+            security_groups  = []
         },
         {
+            description      = "https"
             from_port        = 443
             to_port          = 443
             protocol         = "tcp"
             cidr_blocks      = ["0.0.0.0/0", aws_vpc.main.cidr_block]
             self             = false
+            ipv6_cidr_blocks = []
+            prefix_list_ids  = []
+            security_groups  = []
         },
         {
+            description      = "frontend"
             from_port        = 3000
             to_port          = 3000
             protocol         = "tcp"
             cidr_blocks      = ["0.0.0.0/0", aws_vpc.main.cidr_block]
             self              = false
+            ipv6_cidr_blocks = []
+            prefix_list_ids  = []
+            security_groups  = []
         },
         {
+            description      = "backend"
             from_port        = 8080
             to_port          = 8080
             protocol         = "tcp"
             cidr_blocks      = ["0.0.0.0/0", aws_vpc.main.cidr_block]
             self              = false
+            ipv6_cidr_blocks = []
+            prefix_list_ids  = []
+            security_groups  = []
         }
     ]
     egress = [
         {
+            description      = "outbound"
             from_port        = 0
             to_port          = 0
             protocol         = "-1"
             cidr_blocks      = ["0.0.0.0/0"]
             self             = false
+            ipv6_cidr_blocks = []
+            prefix_list_ids  = []
+            security_groups  = []
         }
     ]
     tags = {

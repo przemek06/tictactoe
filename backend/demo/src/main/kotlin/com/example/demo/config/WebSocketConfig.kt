@@ -18,7 +18,7 @@ class WebSocketConfig: WebSocketMessageBrokerConfigurer {
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         registry.addEndpoint("/stomp")
-            .setAllowedOrigins("http://localhost:3000")
+            .setAllowedOrigins("http://44.203.15.249:3000")
             .withSockJS()
     }
 }
