@@ -1,7 +1,8 @@
 #!/bin/sh 
 
-sudo apt-get install docker 
+sudo apt-get update
+sudo apt-get install -y docker.io 
 git clone https://github.com/przemek06/tictactoe.git
-cd tic-tac-toe/backend/demo
-docker build -t backend .
-docker run -p 8080:8080 backend
+cd tictactoe/backend/demo
+sudo docker build -t backend .
+sudo docker run -p 8080:8080 backend
