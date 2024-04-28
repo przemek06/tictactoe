@@ -14,6 +14,9 @@ class PlayerService {
     }
 
     fun addPlayer(player: Player) {
+        if (playerQueue.map { it.name }.contains(player.name)) {
+            throw IllegalArgumentException()
+        }
         playerQueue.add(player)
     }
 

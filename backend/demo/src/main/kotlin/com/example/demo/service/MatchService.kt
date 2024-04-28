@@ -20,11 +20,17 @@ class MatchService(val playerService: PlayerService, val messageService: Message
         }
 
         val matchField = findField(match, moveMessage.field)
-        matchField.occupant = moveMessage.player
+        val player = if (moveMessage.player == match.player1.name) match.player1 else match.player2
+        matchField.occupant = player
 
-        val matchMessage = MatchMessage(match)
+        val matchMessage = MatchMessage("MOVE", match)
 
         messageService.sendMatchMessage(matchMessage, match)
+
+        if (isGameFinished(match)) {
+            val winner = findWinner(match)
+            messageService.sendMatchMessage(GameOverMessage("RESULT", winner), match)
+        }
     }
 
     @Scheduled(fixedRate = 10000)
@@ -36,7 +42,7 @@ class MatchService(val playerService: PlayerService, val messageService: Message
 
             matches[match.uuid] = match
 
-            val msg = MatchMessage(match)
+            val msg = MatchMessage("MOVE", match)
             messageService.sendPlayerMessage(msg, player1)
             messageService.sendPlayerMessage(msg, player2)
         }

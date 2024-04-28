@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
-function WebSocketConnection({ playerName, onMatchFound }) {
+function onMatchFound(setMatchData, match, navigate) {
+  setMatchData(match)
+  console.log("NAVIGATE")
+  navigate("/game")
+}
+
+function WebSocketConnection({ playerName, setMatchData }) {
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const socket = new SockJS('http://localhost:8080/stomp');
     const stompClient = Stomp.over(socket);
-
     stompClient.connect({}, function() {
-      stompClient.subscribe('/player/' + playerName, function(message) {
-        onMatchFound(JSON.parse(message.body));
+      stompClient.subscribe('/topic/player/' + playerName, function(message) {
         setLoading(false);
+        onMatchFound(setMatchData, JSON.parse(message.body).match, navigate);
+        stompClient.disconnect();
       });
     });
-
-    return () => {
-      stompClient.disconnect();
-    };
   }, [playerName, onMatchFound]);
 
   return (

@@ -1,6 +1,6 @@
 package com.example.demo.model
 
 data class MoveMessage(
-    val player: Player,
+    val player: String,
     val field: Field
 )

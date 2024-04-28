@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service
 class MessageService(val messageTemplate: SimpMessagingTemplate) {
 
     fun sendMatchMessage(msg: Any, match: Match) {
-        messageTemplate.convertAndSend("/match/${match.uuid}", msg)
+        messageTemplate.convertAndSend("/topic/match/${match.uuid}", msg)
     }
 
     fun sendPlayerMessage(msg: Any, player: Player) {
-        messageTemplate.convertAndSend("/player/${player.name}", msg)
+        messageTemplate.convertAndSend("/topic/player/${player.name}", msg)
     }
 }

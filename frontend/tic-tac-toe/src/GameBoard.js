@@ -1,30 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 
-function GameBoard({ matchData }) {
+function GameBoard({ matchData, playerName }) {
   const [board, setBoard] = useState(matchData.fields);
-  const [currentPlayer, setCurrentPlayer] = useState(matchData.player1); // Assume player1 starts
+  const [result, setResult] = useState(null);
+  const [player, setPlayer] = useState(null);
+  const playerRef = useRef(player);  
+  const socket = new SockJS('http://localhost:8080/stomp');
+  const stompClient = Stomp.over(socket);
 
   // Subscribe to moves
   useEffect(() => {
-    const socket = new SockJS('http://localhost:8080/stomp');
-    const stompClient = Stomp.over(socket);
-    stompClient.connect({}, function() {
-      stompClient.subscribe('/match/' + matchData.uuid, function(message) {
-        const update = JSON.parse(message.body);
-        setBoard(update.fields);
-        setCurrentPlayer(update.currentTurn);
-      });
-    });
+    console.log("MATCH DATA PLAYER: " + matchData.player1.name);
+    setPlayer(matchData.player1);
+    playerRef.current = matchData.player1;
+    console.log("START PLAYER: " + playerRef.current.name);
 
-    return () => {
-      stompClient.disconnect();
-    };
-  }, [matchData]);
+    console.log("OPEN")
+    if (!stompClient.connected) {
+      stompClient.connect({}, function() {
+        stompClient.subscribe('/topic/match/' + matchData.uuid, function(message) {
+          const body = JSON.parse(message.body);
+          if (body.type == "MOVE") {
+            const update = JSON.parse(message.body).match;
+            setBoard(update.fields);
+            console.log("UPDATE PLAYER: " + playerRef.current.name)
+            if (matchData.player1.name == playerRef.current.name) {
+              setPlayer(update.player2)
+              playerRef.current = update.player2
+            } else {
+              setPlayer(update.player1)
+              playerRef.current = update.player1
+            }
+          } else {
+            const res = body.won === null ? "Draw" : "Winner: " + body.won.name;
+            setResult(res);
+          }
+        });
+      });
+    }
+  }, []);
 
   const handleFieldClick = async (x, y) => {
     const move = {
-      player: currentPlayer,
+      player: playerName,
       field: { x, y }
     };
     try {
@@ -34,22 +55,27 @@ function GameBoard({ matchData }) {
     }
   };
 
-  return (
-    <div>
-      <h3>Current Turn: {currentPlayer.name}</h3>
-      <div className="board">
-        {board.map((row, rowIndex) => (
-          <div key={rowIndex} className="row">
-            {row.map((cell, cellIndex) => (
-              <button key={cellIndex} onClick={() => handleFieldClick(rowIndex, cellIndex)}>
-                {cell.occupant ? cell.occupant.name : ''}
-              </button>
-            ))}
-          </div>
-        ))}
-      </div>
+const rows = 3;
+const rowLength = Math.sqrt(board.length);
+
+return (
+  <div>
+    <h3>Current Turn: {player ? player.name : ''}</h3>
+    <h2 hidden={result == null}>{result}</h2>
+    <div className="board">
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="board-row">
+          {board.slice(i * rowLength, (i + 1) * rowLength).map((field, j) => (
+            <button key={j} disabled={(playerName!=(player ? player.name : '')) || result} onClick={() => handleFieldClick(field.x, field.y)}>
+              {field.occupant ? field.occupant.name : ' '}
+            </button>
+          ))}
+        </div>
+      ))}
     </div>
-  );
+  </div>
+);
 }
+
 
 export default GameBoard;

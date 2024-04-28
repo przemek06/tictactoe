@@ -13,8 +13,7 @@ class WebSocketConfig: WebSocketMessageBrokerConfigurer {
 
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
-        registry.enableSimpleBroker("/match")
-        registry.enableSimpleBroker("/player")
+        registry.enableSimpleBroker("/topic")
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
