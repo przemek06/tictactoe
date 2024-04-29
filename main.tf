@@ -37,6 +37,17 @@ resource "aws_security_group" "security_group_main" {
             prefix_list_ids  = []
             security_groups  = []
         },
+            {
+            description      = "ssh"
+            from_port        = 22
+            to_port          = 22
+            protocol         = "tcp"
+            cidr_blocks      = ["0.0.0.0/0"]
+            ipv6_cidr_blocks  = []
+            prefix_list_ids   = []
+            security_groups   = []
+            self              = false
+            },
         {
             description      = "frontend"
             from_port        = 3000
