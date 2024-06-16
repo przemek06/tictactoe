@@ -44,7 +44,7 @@ class SecurityConfig(
         return object : WebMvcConfigurer {
             override fun addCorsMappings(registry: CorsRegistry) {
                 registry.addMapping("/**")
-                    .allowedOrigins("http://44.193.15.3:3000")
+                    .allowedOrigins("http://44.204.136.9:3000")
                     .allowedMethods("GET", "POST", "DELETE", "PUT")
                     .allowCredentials(true)
             }
