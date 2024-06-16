@@ -3,8 +3,9 @@ import axios from 'axios';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import BACKEND_HOST from './host';
+import refreshTokenIfExpired from './utils';
 
-function GameBoard({ matchData, playerName }) {
+function GameBoard({ matchData, playerName, token, refreshToken, setToken }) {
   const [board, setBoard] = useState(matchData.fields);
   const [result, setResult] = useState(null);
   const [player, setPlayer] = useState(null);
@@ -50,7 +51,17 @@ function GameBoard({ matchData, playerName }) {
       field: { x, y }
     };
     try {
-      await axios.post(`${BACKEND_HOST}/match/${matchData.uuid}`, move);
+      await refreshTokenIfExpired(token, refreshToken, setToken)
+      await axios.post(
+        `${BACKEND_HOST}/match/${matchData.uuid}`, 
+        move,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token,
+          }
+        }
+    );
     } catch (error) {
       console.error('Error sending move:', error);
     }

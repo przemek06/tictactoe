@@ -1,18 +1,33 @@
 package com.example.demo.service
 
 import com.example.demo.model.*
+import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException.Unauthorized
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UnauthorizedException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.NoSuchElementException
 
 @Service
-class MatchService(val playerService: PlayerService, val messageService: MessageService) {
+class MatchService(
+    val playerService: PlayerService,
+    val messageService: MessageService,
+    val historyService: HistoryService
+) {
+
+    val logger = LoggerFactory.getLogger(this::class.java)
 
     val matches: MutableMap<UUID, Match> = ConcurrentHashMap()
 
     fun makeMove(moveMessage: MoveMessage, matchUUID: UUID) {
+        val user = SecurityContextHolder.getContext().authentication.name
+
+        if (user != moveMessage.player) {
+            throw SecurityException()
+        }
+
         val match = matches.getOrDefault(matchUUID, null) ?: throw NoSuchElementException()
 
         if (!isMoveLegal(match, moveMessage.field)) {
@@ -29,7 +44,9 @@ class MatchService(val playerService: PlayerService, val messageService: Message
 
         if (isGameFinished(match)) {
             val winner = findWinner(match)
+            val loser = if (match.player1.name == winner?.name) match.player2.name else match.player1.name
             messageService.sendMatchMessage(GameOverMessage("RESULT", winner), match)
+            historyService.saveHistory(winner?.name!!, loser)
         }
     }
 

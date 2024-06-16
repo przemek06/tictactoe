@@ -1,4 +1,4 @@
-package com.example.demo.config
+package com.example.demo.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -9,26 +9,32 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-class SecurityConfig {
+class SecurityConfig(
+    private val cognitoAuthorizationFilter: CognitoAuthorizationFilter
+) {
+
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http.invoke {
             authorizeRequests {
-                authorize("/player/**", permitAll)
-                authorize("/match/**", permitAll)
+                authorize("/player/**", authenticated)
+                authorize("/match/**", authenticated)
+                authorize("/history", authenticated)
                 authorize("/stomp/**", permitAll)
             }
 
             csrf { disable() }
             cors { }
             exceptionHandling { authenticationEntryPoint = HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED) }
-
+            addFilterBefore<UsernamePasswordAuthenticationFilter>(cognitoAuthorizationFilter)
         }
         return http.build()
     }
@@ -38,7 +44,7 @@ class SecurityConfig {
         return object : WebMvcConfigurer {
             override fun addCorsMappings(registry: CorsRegistry) {
                 registry.addMapping("/**")
-                    .allowedOrigins("http://34.228.43.207:3000")
+                    .allowedOrigins("http://localhost:3000")
                     .allowedMethods("GET", "POST", "DELETE", "PUT")
                     .allowCredentials(true)
             }

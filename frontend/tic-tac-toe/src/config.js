@@ -1,0 +1,7 @@
+const USER_POOL_ID = 'us-east-1_EYIKkuCff';
+const CLIENT_ID = '5anm1sc7kd9k3395o2ep363ctu';
+const AWS_COGNITO_URL = `https://cognito-idp.us-east-1.amazonaws.com/`
+const USER_PASS_AUTH_FLOW = 'USER_PASSWORD_AUTH'
+const REFRESH_TOKEN_AUTH_FLOW = 'REFRESH_TOKEN_AUTH'
+
+export { AWS_COGNITO_URL, USER_POOL_ID, CLIENT_ID, USER_PASS_AUTH_FLOW, REFRESH_TOKEN_AUTH_FLOW }
