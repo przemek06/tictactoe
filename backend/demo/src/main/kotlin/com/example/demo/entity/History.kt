@@ -13,6 +13,8 @@ data class History(
     var loser: String,
     var timestamp: Long
 ) {
+    constructor() : this(UUID.randomUUID(), "", "", 0L)
+
     fun toDto() : HistoryDto {
         return HistoryDto(winner, loser, timestamp)
     }
