@@ -20,7 +20,14 @@ function UserForm({ playerName, token, refreshToken, setToken }) {
   useEffect(() => { 
     const fetchData = async () => { 
       try { 
-        const response = await axios.get(`${BACKEND_HOST}/history`);
+        const response = await axios.get(
+          `${BACKEND_HOST}/history`,
+          {
+            headers: {
+              'Authorization': 'Bearer ' + token,
+            }
+          }
+        );
         const data = await response.data
         setHistory(data)
       }
