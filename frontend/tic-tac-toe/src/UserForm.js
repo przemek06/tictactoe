@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,23 @@ function onLogin(navigate) {
 function UserForm({ playerName, token, refreshToken, setToken }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [history, setHistory] = useState([])
   const navigate = useNavigate()
+
+  useEffect(() => { 
+    const fetchData = async () => { 
+      try { 
+        const response = await axios.get(`${BACKEND_HOST}/history`);
+        const data = await response.data
+        setHistory(data)
+      }
+      catch (e) {
+        alert("Could not load history")
+      }
+    }
+
+    fetchData()
+  }, [])
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -57,6 +73,12 @@ function UserForm({ playerName, token, refreshToken, setToken }) {
         <p>{errorMessage}</p>
         <button onClick={() => setModalOpen(false)}>Close</button>
       </Modal>
+      <h2>Match history</h2>
+      <ul>
+        {history.map((item, index) => (
+          <li key={index}>Winner: {item.winner}, Loser: {item.loser}, Match Date: {(new Date(item.timestamp)).toISOString()}</li>
+        ))}
+      </ul>
     </div>
   );
 }
